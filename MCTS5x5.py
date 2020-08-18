@@ -68,13 +68,12 @@ def simulate(node):
     # No need to simulate at terminal node
     evaluation = node.state.evaluatePosition()
     if node.state.isTerminal() and evaluation == node.state.player:
-        # node.state.printBoard()
         node.parent.value = MIN_INT
         return evaluation
 
     # Simulate as normal
     simulate_board = copy.copy(node.state.board)
-    simulate_state = State(simulate_board, node.state.player)
+    simulate_state = State(simulate_board, node.state.player, node.state.last_move)
     while not simulate_state.isTerminal():
         rollout_policy(simulate_state)
 
@@ -147,8 +146,9 @@ if __name__ == "__main__":
         # Initialise a new tree
         start_state = State(START_BOARD, PLAYER2)
         root_node = Node(start_state)
-        root_node.state.printBoard()
-
+        #root_node.state.printBoard()
+        #print(start_state.evaluatePosition())
+        #input()
         print("========================================================")
         print("Starting a new game of tic tac toe. Player 1 moves first")
         print("========================================================")
