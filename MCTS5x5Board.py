@@ -51,10 +51,10 @@ class State:
 
     # Returns a score evaluating the current state
     def evaluatePosition(self):
-        for row in range(0, 3):
+        for row in range(0, 5):
             row_total = 0
             col_total = 0
-            for col in range(0, 3):
+            for col in range(0, 5):
                 row_total += self.board[row * 5 + col]
                 col_total += self.board[col * 5 + row]
             if row_total >= PLAYER1_CONNECT or col_total >= PLAYER1_CONNECT:
