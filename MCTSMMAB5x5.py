@@ -1,12 +1,17 @@
+''' Implements a 2 move (each) lookahead before rollout phase to check for simulations'''
+
+
 import sys
 import math
 import random
 import copy
+import time
 from operator import attrgetter
 from MCTSMMAB5x5Board import (
     PLAYER1, PLAYER2, DRAW, PLAYER1_WIN, PLAYER2_WIN, START_BOARD, State,
 )
 
+sims = 0
 MAX_INT = float('inf')
 MIN_INT = float('-inf')
 
@@ -62,28 +67,97 @@ def expand_node(node):
         
 
 '''Runs a simulation based on our rollout policy. If making a move leads to a
-loss 1 ply ahead, ensure we never play  it.'''
+loss 1 ply ahead, ensure we never play it.'''
+# NOTE: We will perform minimax to check 2 turns ahead for forced wins/losses
 def simulate(node):
     # No need to simulate at terminal node
+    '''
     evaluation = node.state.evaluatePosition()
     if node.state.isTerminal() and evaluation == node.state.player:
         node.parent.value = MIN_INT
         return evaluation
+    '''
+    
+    simulate_board = copy.copy(node.state.board)
+    simulate_state = State(simulate_board, node.state.player, node.state.last_move)    
+    #global sims
+
+    print(f"Performing minimax with player {simulate_state.player}")
+    node.state.printBoard()
+
+    # Perform 4 ply minimax
+    #simulate_state.printBoard()
+    evaluation = minimax(simulate_state, 4, MIN_INT, MAX_INT, -simulate_state.player)
+    print(evaluation)
+    #print(f"NUMBER OF MINIMAX TERMINALS {sims}")
+    #sims = 0
+    #input()
+    if evaluation == simulate_state.player:
+        # This is a forced win in 2 turns
+        print("Forced win in 2 from")
+        simulate_state.printBoard()
+        node.parent.value = MIN_INT
+        node.value = MAX_INT
+        input()
+        del simulate_state
+        return evaluation
+    elif evaluation == -simulate_state.player:
+        # This is a forced loss in 2 turns
+        print("Forced loss in 2 from")
+        simulate_state.printBoard()
+        node.parent.value = MAX_INT
+        node.value = MIN_INT
+        input()
+        del simulate_state
+        return evaluation
+
 
     # Simulate as normal
-    simulate_board = copy.copy(node.state.board)
-    simulate_state = State(simulate_board, node.state.player, node.state.last_move)
     while not simulate_state.isTerminal():
         rollout_policy(simulate_state)
 
     evaluation = simulate_state.evaluatePosition()
     del simulate_state
     return evaluation
+
+# Minimax 4 ply to check for forced wins/losses 2 turns ahead
+def minimax(state, depth, alpha, beta, player):
+    if depth == 0 or state.isTerminal():
+        #global sims
+        #sims += 1
+        return state.evaluatePosition()
     
+    last_move = state.last_move
+
+    if player == PLAYER1:
+        max_evaluation = MIN_INT
+        for move in state.getAllPossibleMoves():
+            state.makeMove(move)
+            evaluation = minimax(state, depth - 1, alpha, beta, -1)
+            state.undoMove(move, last_move)
+            max_evaluation = max(max_evaluation, evaluation)
+            alpha = max(alpha, evaluation)
+            if beta <= alpha:
+                break
+        return max_evaluation
+    else:
+        min_evaluation = MAX_INT
+        for move in state.getAllPossibleMoves():
+            state.makeMove(move)
+            evaluation = minimax(state, depth - 1, alpha, beta, 1)
+            state.undoMove(move, last_move)
+            min_evaluation = min(min_evaluation, evaluation)
+            beta = min(beta, evaluation)
+            if beta <= alpha:
+                break
+        return min_evaluation
+
+
 # Our rollout policy CURRENTLY ON RANDOM PLAYOUT
 # NOTE: In future, we can make an evaluation of 1 ply with getAllPossibleStates
 def rollout_policy(state):
     state.makeRandomMove()
+
 
 '''Back propagates, updating scores until root'''
 def back_propagate(node, evaluation):
@@ -104,10 +178,11 @@ def back_propagate(node, evaluation):
 def decide_move(root_node, time_limit):
     # Go through the four phases of MCTS within our time condition
     #t_end = time.time() + time_limit
-    for i in range(10000):
+    for i in range(100):
     #while time.time() < t_end:
+        # print(i)
         '''SELECTION'''
-        #print("Selection")
+        # print("Selection")
         promising_node = select_best_child(root_node)
 
         '''EXPANSION'''
@@ -118,7 +193,7 @@ def decide_move(root_node, time_limit):
         '''SIMULATION'''
         # Try to run simulation on child. If no child exists, it means we are
         # at a terminal node. Run simulation on the terminal node.
-        #print("Simulation")
+        # print("Simulation")
         if promising_node.children:
             explore_node = promising_node.getRandomChild()
         else:
@@ -143,7 +218,7 @@ if __name__ == "__main__":
     results = []
     for games in range(1): 
         # Initialise a new tree
-        start_state = State(START_BOARD, PLAYER2)
+        start_state = State([0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, -1, 0, 1, 0, 0, 0, -1, 0, 0, 0], PLAYER2, 3)
         root_node = Node(start_state)
         #root_node.state.printBoard()
         #print(start_state.evaluatePosition())
