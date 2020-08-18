@@ -8,7 +8,7 @@ PLAYER2_WIN = -1
 PLAYER1_CONNECT = 4
 PLAYER2_CONNECT = -4
 DRAW = 0
-
+START_BOARD = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 '''Contains data regarding state of this game position. Holds information about Board'''
 # Player refers to player who made the move to get into this state
 class State:
@@ -60,19 +60,23 @@ class State:
             if row_total >= PLAYER1_CONNECT or col_total >= PLAYER1_CONNECT:
                 #print("Player 1 row col win")
                 return PLAYER1_WIN
-            elif row_total >= PLAYER2_CONNECT or col_total >= PLAYER2_CONNECT:
+            elif row_total <= PLAYER2_CONNECT or col_total <= PLAYER2_CONNECT:
                 #print("Player 2 row col win")
                 return PLAYER2_WIN
             
-            diag1 = self.board[0] + self.board[6] + self.board[8]
-            diag2 = self.board[2] + self.board[4] + self.board[6]
+            diagonals = []
+            diagonals.append(self.board[0] + self.board[6] + self.board[12] + self.board[18] + self.board[24])
+            diagonals.append(self.board[4] + self.board[8] + self.board[12] + self.board[16] + self.board[20])
+            diagonals.append(self.board[1] + self.board[7] + self.board[13] + self.board[19])
+            diagonals.append(self.board[5] + self.board[11] + self.board[17] + self.board[23])
+            diagonals.append(self.board[3] + self.board[7] + self.board[11] + self.board[15])
+            diagonals.append(self.board[9] + self.board[13] + self.board[17] + self.board[21])
 
-            if diag1 == PLAYER1_CONNECT or diag2 == PLAYER1_CONNECT:
-                #print("Player 1 diag win")
+            if max(diagonals) >= PLAYER1_CONNECT:
                 return PLAYER1_WIN
-            elif diag1 == PLAYER2_CONNECT or diag2 == PLAYER2_CONNECT:
-                #print("Player 2 diag win")
+            elif min(diagonals) <= PLAYER2_CONNECT:
                 return PLAYER2_WIN
+
         #print("Draw")
         return DRAW
 
@@ -83,7 +87,7 @@ class State:
             return True
         
         for square in self.board:
-            if square == 0:
+            if square == EMPTY:
                 #print("Not terminal")
                 return False
         

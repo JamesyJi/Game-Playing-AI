@@ -4,8 +4,8 @@ import random
 import copy
 import time
 from operator import attrgetter
-from MCTSBoard import (
-    PLAYER1, PLAYER2, DRAW, PLAYER1_WIN, PLAYER2_WIN, State,
+from MCTS5x5Board import (
+    PLAYER1, PLAYER2, DRAW, PLAYER1_WIN, PLAYER2_WIN, START_BOARD, State,
 )
 
 MAX_INT = float('inf')
@@ -105,8 +105,9 @@ def back_propagate(node, evaluation):
 '''Applies MCTS to determine the best node to move into'''
 def decide_move(root_node, time_limit):
     # Go through the four phases of MCTS within our time condition
-    t_end = time.time() + time_limit
-    while time.time() < t_end:
+    #t_end = time.time() + time_limit
+    for i in range(10000):
+    #while time.time() < t_end:
         '''SELECTION'''
         #print("Selection")
         promising_node = select_best_child(root_node)
@@ -142,9 +143,9 @@ def decide_move(root_node, time_limit):
 
 if __name__ == "__main__":
     results = []
-    for games in range(20): 
+    for games in range(1): 
         # Initialise a new tree
-        start_state = State([0, 0, 0, 0, 0, 0, 0, 0, 0], PLAYER2)
+        start_state = State(START_BOARD, PLAYER2)
         root_node = Node(start_state)
         root_node.state.printBoard()
 
@@ -154,7 +155,7 @@ if __name__ == "__main__":
 
         while not root_node.state.isTerminal():
             print("Deciding move==================================================")
-            root_node = decide_move(root_node, 0.5)
+            root_node = decide_move(root_node, 5)
             root_node.parent = None
             print("Selected best root node which was")
             root_node.state.printBoard()
