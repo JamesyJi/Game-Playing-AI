@@ -107,7 +107,7 @@ def simulate(node):
         # This is a forced loss in 2 turns
         #print(f"Forced loss in 2 from with player {node.state.player}")
         #simulate_state.printBoard()
-        node.parent.value = 5000
+        #node.parent.value = MAX_INT
         node.value = MIN_INT
         #input()
         del simulate_state
