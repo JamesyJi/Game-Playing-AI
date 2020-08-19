@@ -77,40 +77,43 @@ def simulate(node):
         node.parent.value = MIN_INT
         return evaluation
     '''
-    
+
     simulate_board = copy.copy(node.state.board)
     simulate_state = State(simulate_board, node.state.player, node.state.last_move)    
     #global sims
 
-    print(f"Performing minimax with player {simulate_state.player}")
-    node.state.printBoard()
+    #simulate_state = State([1, 0, 0, 1, 0, 0, 0, -1, 0, 0, 0, 0, -1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], PLAYER1, 3)
+
+    #print(f"Performing minimax with player {simulate_state.player}")
+    #node.state.printBoard()
 
     # Perform 4 ply minimax
     #simulate_state.printBoard()
-    evaluation = minimax(simulate_state, 4, MIN_INT, MAX_INT, -simulate_state.player)
-    print(evaluation)
+    evaluation = minimax(simulate_state, 4, MIN_INT, MAX_INT, simulate_state.player)
+    #print(evaluation)
     #print(f"NUMBER OF MINIMAX TERMINALS {sims}")
     #sims = 0
     #input()
-    if evaluation == simulate_state.player:
+    if evaluation == node.state.player:
         # This is a forced win in 2 turns
-        print("Forced win in 2 from")
-        simulate_state.printBoard()
-        node.parent.value = MIN_INT
-        node.value = MAX_INT
-        input()
+        #print(f"Forced win in 2 from with player {node.state.player}")
+        # simulate_state.printBoard()
+        node.parent.value = -9000
+        node.value = 2000
+        #input()
         del simulate_state
         return evaluation
-    elif evaluation == -simulate_state.player:
+    elif evaluation == -node.state.player:
         # This is a forced loss in 2 turns
-        print("Forced loss in 2 from")
-        simulate_state.printBoard()
-        node.parent.value = MAX_INT
+        #print(f"Forced loss in 2 from with player {node.state.player}")
+        #simulate_state.printBoard()
+        node.parent.value = 5000
         node.value = MIN_INT
-        input()
+        #input()
         del simulate_state
         return evaluation
 
+    # NOTE: If all child are forced losses, then this node is a forced win.
 
     # Simulate as normal
     while not simulate_state.isTerminal():
@@ -123,17 +126,15 @@ def simulate(node):
 # Minimax 4 ply to check for forced wins/losses 2 turns ahead
 def minimax(state, depth, alpha, beta, player):
     if depth == 0 or state.isTerminal():
-        #global sims
-        #sims += 1
         return state.evaluatePosition()
     
     last_move = state.last_move
 
-    if player == PLAYER1:
+    if player == PLAYER2:
         max_evaluation = MIN_INT
         for move in state.getAllPossibleMoves():
             state.makeMove(move)
-            evaluation = minimax(state, depth - 1, alpha, beta, -1)
+            evaluation = minimax(state, depth - 1, alpha, beta, 1)
             state.undoMove(move, last_move)
             max_evaluation = max(max_evaluation, evaluation)
             alpha = max(alpha, evaluation)
@@ -144,7 +145,7 @@ def minimax(state, depth, alpha, beta, player):
         min_evaluation = MAX_INT
         for move in state.getAllPossibleMoves():
             state.makeMove(move)
-            evaluation = minimax(state, depth - 1, alpha, beta, 1)
+            evaluation = minimax(state, depth - 1, alpha, beta, -1)
             state.undoMove(move, last_move)
             min_evaluation = min(min_evaluation, evaluation)
             beta = min(beta, evaluation)
@@ -218,7 +219,7 @@ if __name__ == "__main__":
     results = []
     for games in range(1): 
         # Initialise a new tree
-        start_state = State([0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, -1, 0, 1, 0, 0, 0, -1, 0, 0, 0], PLAYER2, 3)
+        start_state = State(START_BOARD, PLAYER2)
         root_node = Node(start_state)
         #root_node.state.printBoard()
         #print(start_state.evaluatePosition())
@@ -230,10 +231,12 @@ if __name__ == "__main__":
         while not root_node.state.isTerminal():
             print("Deciding move==================================================")
             root_node = decide_move(root_node, 5)
+            print(f"Parent root node had {root_node.parent.value} wins out of {root_node.parent.visits}")
+            root_node.parent.state.printBoard()
             root_node.parent = None
-            print("Selected best root node which was")
+            print(f"Selected best root node which had {root_node.value} wins out of {root_node.visits} attempts")
             root_node.state.printBoard()
-
+            input()
         results.append(root_node.state.evaluatePosition())
         del root_node
 
