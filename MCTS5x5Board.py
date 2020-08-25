@@ -104,8 +104,8 @@ def back_propagate(node, evaluation):
 def decide_move(root_node, time_limit):
     # Go through the four phases of MCTS within our time condition
     #t_end = time.time() + time_limit
-    for i in range(10000):
-    #while time.time() < t_end:
+    #for i in range(10000):
+    while time.time() < t_end:
         '''SELECTION'''
         #print("Selection")
         promising_node = select_best_child(root_node)
@@ -129,10 +129,11 @@ def decide_move(root_node, time_limit):
         '''BACK PROPAGATION'''
         #print("Back propagation")
         back_propagate(explore_node, evaluation)
-
+    '''
     for children in root_node.children:
         children.state.printBoard()
         print(f"had {children.value} wins out of {children.visits} attempts")
+    '''
     # Return the best child
     best_node = root_node.getMostVisitedChild()
     # print(f"Best node selected had {best_node.visits} visits")

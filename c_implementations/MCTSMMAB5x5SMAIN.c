@@ -21,8 +21,9 @@ int main(void) {
     printf("========================================================\n");
     while (!is_terminal(root_node->state)) {
         //printf("Deciding Move=======================================\n");
-        root_node = decide_move(root_node, 5);
+        root_node = decide_move(root_node, 1);
         print_board(root_node->state);
+        root_node->parent = NULL;
         // getchar();        
     }
     print_board(root_node->state);
