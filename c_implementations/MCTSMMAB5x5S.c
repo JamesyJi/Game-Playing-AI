@@ -9,7 +9,7 @@
 #include "MCTSMMAB5x5S.h"
 
 #define DEPTH 4
-
+#define N_VISITS 2
 static int n_legal_moves(State state);
 static float calculate_score(Node node);
 
@@ -54,15 +54,22 @@ Node select_best_child(Node node) {
             if (score > best_score) {
                 best_score = score;
                 max_child = i;
-                //printf("%d\n", max_child);
             }
         }
-        //print_board(best_child->state);
-        //getchar();
+        
+        // Perform mini max after a certain number of visits
+        if (best_child->visits == N_VISITS) {
+            int forced_outcome = minimax(best_child->state, DEPTH, INT_MIN, INT_MAX, best_child->state->player);
+            if (forced_outcome == best_child->state->player) {
+                best_child->parent->value = INT_MIN;
+                best_child->value = INT_MAX;
+            } else if (forced_outcome == -best_child->state->player) {
+                best_child->value = INT_MIN;
+            }
+        }
+
         // Assign best child
-        //printf("Max_child was %d\n", max_child);
         best_child = best_child->children[max_child];
-        // print_board(best_child->state);
     }
 }
 
@@ -87,32 +94,17 @@ void expand_node(Node node) {
     }
 
     node->n_children = new_children;
-    /*printf("EXPANSION CHECK\n");
-    for (int i = 0; i < node->n_children; ++i) {
-        print_board(node->children[i]->state);
-        printf("=================================\n");
-    }*/
     return;
 }
 
 /* Runs a simulation on a node based on our rollout policy.
 Returns the evaluation of the position */
 int simulate(Node node) {
-    // Prevent 1 move losses
-    /*int evaluation = evaluate_position(node->state);
-    if (is_terminal(node->state) && evaluation == node->state->player) {
-        node->parent->value = INT_MIN;
-        return evaluation;
-    }*/
-
-    //printf("SIMULATING\n");
-    //print_board(node->state);
-    //getchar();
     // Creates a new state to be used in simulation
     State simulate_state = create_state(node->state->board, node->state->player, node->state->last_move);
     
     // Performs minimax to check for forced losses
-    int evaluation = minimax(simulate_state, DEPTH, INT_MIN, INT_MAX, simulate_state->player);
+    /*int evaluation = minimax(simulate_state, DEPTH, INT_MIN, INT_MAX, simulate_state->player);
     if (evaluation == node->state->player) {
         node->parent->value = INT_MIN;
         node->value = INT_MAX;
@@ -123,13 +115,13 @@ int simulate(Node node) {
         free_state(simulate_state);
         return evaluation;
         // NOTE: If all child are forced losses, then this node is a forced win.
-    }
+    }*/
 
     while (!is_terminal(simulate_state)) {
         rollout_policy(simulate_state);
     }
 
-    evaluation = evaluate_position(simulate_state);
+    int evaluation = evaluate_position(simulate_state);
     free(simulate_state);
     return evaluation;
 }
