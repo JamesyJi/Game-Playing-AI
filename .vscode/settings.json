@@ -1,3 +1,12 @@
 {
-    "C_Cpp.errorSquiggles": "Disabled"
+    "C_Cpp.errorSquiggles": "Disabled",
+    "files.associations": {
+        "__bit_reference": "c",
+        "__string": "c",
+        "algorithm": "c",
+        "ios": "c",
+        "memory": "c",
+        "string": "c",
+        "type_traits": "c"
+    }
 }

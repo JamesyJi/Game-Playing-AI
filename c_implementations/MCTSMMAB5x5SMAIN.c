@@ -26,6 +26,7 @@ int main(void) {
         root_node->parent = NULL;
         // getchar();        
     }
+    printf("========================================\n");
     print_board(root_node->state);
 
     return 0;
@@ -67,10 +68,10 @@ Node decide_move(Node root_node, time_t time_limit) {
     // Determine the child with the most visits
     Node best_node = get_most_visited_child(root_node);
 
-    /*for (int i = 0; i < root_node->n_children; ++i) {
+    for (int i = 0; i < root_node->n_children; ++i) {
         print_board(root_node->children[i]->state);
         printf("had value %0.f out of %0.f visits\n", root_node->children[i]->value, root_node->children[i]->visits);
-    }*/
+    }
 
     printf("Selected best node with %0.f wins out of %0.f visits\n", best_node->value, best_node->visits);
     return best_node;

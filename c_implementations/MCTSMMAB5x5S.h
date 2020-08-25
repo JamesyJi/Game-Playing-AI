@@ -15,6 +15,9 @@ void expand_node(Node node);
 // Simulates node and evaluates
 int simulate(Node node);
 
+// Minimax check for forced wins/losses
+int minimax(State state, int depth, int alpha, int beta, int player);
+
 // Rollout policy dictates how we run our simulations
 void rollout_policy(State state);
 
@@ -26,5 +29,6 @@ Node get_random_child(Node node);
 
 // Gets the child with the most visits
 Node get_most_visited_child(Node node);
+
 
 #endif

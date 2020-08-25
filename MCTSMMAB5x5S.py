@@ -38,6 +38,7 @@ class Node:
 
     # Returns the score of this node
     def getNodeScore(self):
+        print(self.parent.visits)
         return (self.value/(self.visits + 1) + 1.41 * math.sqrt(math.log(self.parent.visits)/(self.visits + 1)))
 
 '''Start of our subtree'''

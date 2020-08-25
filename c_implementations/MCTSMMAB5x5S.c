@@ -8,6 +8,8 @@
 #include "MCTSMMAB5x5SBoard.h"
 #include "MCTSMMAB5x5S.h"
 
+#define DEPTH 4
+
 static int n_legal_moves(State state);
 static float calculate_score(Node node);
 
@@ -39,7 +41,6 @@ Node select_best_child(Node node) {
     while (1) {
         // printf("Hi %d\n", best_child->n_children);
         if (best_child->n_children == 0) {
-            // printf("Returning\n");
             return best_child;
         }
 
@@ -56,7 +57,8 @@ Node select_best_child(Node node) {
                 //printf("%d\n", max_child);
             }
         }
-
+        //print_board(best_child->state);
+        //getchar();
         // Assign best child
         //printf("Max_child was %d\n", max_child);
         best_child = best_child->children[max_child];
@@ -97,11 +99,11 @@ void expand_node(Node node) {
 Returns the evaluation of the position */
 int simulate(Node node) {
     // Prevent 1 move losses
-    int evaluation = evaluate_position(node->state);
+    /*int evaluation = evaluate_position(node->state);
     if (is_terminal(node->state) && evaluation == node->state->player) {
         node->parent->value = INT_MIN;
         return evaluation;
-    }
+    }*/
 
     //printf("SIMULATING\n");
     //print_board(node->state);
@@ -109,6 +111,20 @@ int simulate(Node node) {
     // Creates a new state to be used in simulation
     State simulate_state = create_state(node->state->board, node->state->player, node->state->last_move);
     
+    // Performs minimax to check for forced losses
+    int evaluation = minimax(simulate_state, DEPTH, INT_MIN, INT_MAX, simulate_state->player);
+    if (evaluation == node->state->player) {
+        node->parent->value = INT_MIN;
+        node->value = INT_MAX;
+        free_state(simulate_state);
+        return evaluation;
+    } else if (evaluation == -node->state->player) {
+        node->value = INT_MIN;
+        free_state(simulate_state);
+        return evaluation;
+        // NOTE: If all child are forced losses, then this node is a forced win.
+    }
+
     while (!is_terminal(simulate_state)) {
         rollout_policy(simulate_state);
     }
@@ -116,6 +132,54 @@ int simulate(Node node) {
     evaluation = evaluate_position(simulate_state);
     free(simulate_state);
     return evaluation;
+}
+
+/* Minimax check for forced wins/losses a certain amount of turns ahead. Returns
+the evaluation */
+int minimax(State state, int depth, int alpha, int beta, int player) {
+    if (depth == 0 || is_terminal(state)) {
+        return evaluate_position(state);
+    }
+
+    int last_move = state->last_move;
+    int legal_moves[25];
+    int n_moves = get_all_possible_moves(state, legal_moves);
+    
+    if (player == PLAYER2) {
+        int max_evaluation = INT_MIN;
+        for (int i = 0; i < n_moves; ++i) {
+            make_move(state, legal_moves[i]);
+            int evaluation = minimax(state, depth - 1, alpha, beta, PLAYER1);
+            undo_move(state, legal_moves[i], last_move);
+            if (evaluation > max_evaluation) {
+                max_evaluation = evaluation;
+            }
+            if (evaluation > alpha) {
+                alpha = evaluation;
+            }
+            if (alpha >= beta) {
+                break;
+            }
+        }
+        return max_evaluation;
+    } else {
+        int min_evaluation = INT_MAX;
+        for (int i = 0; i < n_moves; ++i) {
+            make_move(state, legal_moves[i]);
+            int evaluation = minimax(state, depth - 1, alpha, beta, PLAYER2);
+            undo_move(state, legal_moves[i], last_move);
+            if (evaluation < min_evaluation) {
+                min_evaluation = evaluation;
+            }
+            if (evaluation < beta) {
+                beta = evaluation;
+            }
+            if (alpha >= beta) {
+                break;
+            }
+        }
+        return min_evaluation;
+    }
 }
 
 /* Rollout policy determines how we run our simulations. This is currently
@@ -128,7 +192,7 @@ void rollout_policy(State state) {
 /* Back propagates the evaluation until the root */
 void back_propagate(Node node, int evaluation) {
     Node current = node;
-    while (current->parent != NULL) {
+    while (current != NULL) {
         if (current->state->player == evaluation) {
             current->value++; // This player won
         } else if (current->state->player == -evaluation) {
@@ -178,6 +242,7 @@ static int n_legal_moves(State state) {
 
 /* Calculates the UCT score of a node and returns it as a float (faster) */
 static float calculate_score(Node node) {
-    float score = node->value/(node->visits + 1) + 1.41 * sqrt(log(node->parent->visits/node->visits + 1));
+    // printf("%0.f\n", node->parent->visits);
+    float score = node->value/(node->visits + 1) + 1.41 * sqrt(log(node->parent->visits)/(node->visits + 1));
     return score;
 }
