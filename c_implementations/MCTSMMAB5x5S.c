@@ -1,7 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <limits.h> 
+#include <limits.h>
+#include <float.h>
 #include <math.h>
 
 #include "MCTSMMAB5x5SBoard.h"
@@ -95,6 +96,13 @@ void expand_node(Node node) {
 /* Runs a simulation on a node based on our rollout policy.
 Returns the evaluation of the position */
 int simulate(Node node) {
+    // Prevent 1 move losses
+    int evaluation = evaluate_position(node->state);
+    if (is_terminal(node->state) && evaluation == node->state->player) {
+        node->parent->value = INT_MIN;
+        return evaluation;
+    }
+
     //printf("SIMULATING\n");
     //print_board(node->state);
     //getchar();
@@ -105,7 +113,7 @@ int simulate(Node node) {
         rollout_policy(simulate_state);
     }
 
-    int evaluation = evaluate_position(simulate_state);
+    evaluation = evaluate_position(simulate_state);
     free(simulate_state);
     return evaluation;
 }
