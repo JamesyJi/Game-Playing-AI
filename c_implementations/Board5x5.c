@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "MCTSMMAB5x5SBoard.h"
+#include "Board5x5.h"
 
 
 /* Creates and returns a State struct given a board, player who moved into this

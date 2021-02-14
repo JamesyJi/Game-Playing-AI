@@ -3,7 +3,7 @@
 #include <time.h>
 
 #include "MCTSMMAB5x5S.h"
-#include "MCTSMMAB5x5SBoard.h"
+#include "Board5x5.h"
 
 // Decides move with MCTS + augments
 Node decide_move(Node root_node, time_t time_limit);
@@ -67,6 +67,7 @@ Node decide_move(Node root_node, time_t time_limit) {
 
     // Determine the child with the most visits
     Node best_node = get_most_visited_child(root_node);
+    free_all_other_nodes(root_node, best_node);
 
     for (int i = 0; i < root_node->n_children; ++i) {
         print_board(root_node->children[i]->state);
@@ -76,5 +77,3 @@ Node decide_move(Node root_node, time_t time_limit) {
     printf("Selected best node with %0.f wins out of %0.f visits\n", best_node->value, best_node->visits);
     return best_node;
 }
-
-/* Frees all memory from our tree except for a given child node */

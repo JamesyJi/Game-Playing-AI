@@ -1,10 +1,13 @@
 #ifndef _MCTSMMAB5X5S_GUARD
 #define _MCTSMMAB5X5S_GUARD
 
-#include "MCTSMMAB5x5SStructs.h"
+#include "Structs.h"
 
 // Creates a node
 Node create_node(State state, Node parent);
+
+// Frees a node
+void free_node(Node node);
 
 // Selects the most promising node to explore
 Node select_best_child(Node node);
@@ -30,5 +33,7 @@ Node get_random_child(Node node);
 // Gets the child with the most visits
 Node get_most_visited_child(Node node);
 
+// Frees a node and all its children except for a given child node
+void free_all_other_nodes(Node node, Node child);
 
 #endif

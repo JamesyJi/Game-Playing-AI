@@ -1,3 +1,5 @@
+'''A 3x3 tic tac toe board'''
+
 import sys
 import random
 EMPTY = 0
@@ -15,6 +17,7 @@ class State:
     def __init__(self, board, player):
         self.player = player
         self.board = board
+        self.last_move = last_move # Help us evalue the position easier
 
     # Prints the current state's board
     def printBoard(self):
@@ -48,6 +51,25 @@ class State:
                 states.append(State(new_board, opponent))
 
         return states
+
+    def getAllPossibleMoves(self):
+        moves = []
+        for i in range(25):
+            if self.board[i] == EMPTY:
+                moves.append(i)
+            return moves
+
+    # Makes a move
+    def makeMove(self, move):
+        self.player = -self.player
+        self.board[move] = self.player
+        self.last_move = move
+
+    # Undoes a move
+    def undoMove(self, move, last_move):
+        self.player = -self.player
+        self.board[move] = EMPTY
+        self.last_move = last_move    
 
     # Returns a score evaluating the current state
     def evaluatePosition(self):
@@ -93,5 +115,6 @@ class State:
     def makeRandomMove(self):
         self.player = -self.player
         legal_moves = [square for (square, status) in enumerate(self.board) if status == EMPTY]
-        self.board[random.choice(legal_moves)] = self.player
-    
+        move = random.choice(legal_moves)
+        self.board[move] = self.player
+        self.last_move = move

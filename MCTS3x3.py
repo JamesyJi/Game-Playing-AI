@@ -1,10 +1,11 @@
+'''Uses MCTS to play 3x3 tic tac toe'''
 import sys
 import math
 import random
 import copy
 import time
 from operator import attrgetter
-from MCTSBoard import (
+from Board3x3 import (
     PLAYER1, PLAYER2, DRAW, PLAYER1_WIN, PLAYER2_WIN, State,
 )
 

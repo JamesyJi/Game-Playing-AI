@@ -1,13 +1,12 @@
 ''' Implements a 2 move (each) lookahead before rollout phase to check for simulations'''
 
-
 import sys
 import math
 import random
 import copy
 import time
 from operator import attrgetter
-from MCTSMMAB5x5Board import (
+from Board5x5 import (
     PLAYER1, PLAYER2, DRAW, PLAYER1_WIN, PLAYER2_WIN, START_BOARD, State,
 )
 
@@ -98,8 +97,8 @@ def simulate(node):
         # This is a forced win in 2 turns
         #print(f"Forced win in 2 from with player {node.state.player}")
         # simulate_state.printBoard()
-        node.parent.value = -9000
-        node.value = 2000
+        node.parent.value = MIN_INT
+        node.value = MAX_INT
         #input()
         del simulate_state
         return evaluation

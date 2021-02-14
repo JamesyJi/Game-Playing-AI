@@ -1,5 +1,5 @@
-#ifndef _MCTSMMAB5X5SSTRUCTS_GUARD
-#define _MCTSMMAB5X5SSTRUCTS_GUARD
+#ifndef _STRUCTS_GUARD
+#define _STRUCTS_GUARD
 
 typedef struct State *State;
 typedef struct Node *Node;

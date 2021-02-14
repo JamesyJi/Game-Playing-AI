@@ -5,13 +5,18 @@
 #include <float.h>
 #include <math.h>
 
-#include "MCTSMMAB5x5SBoard.h"
+#include "Board5x5.h"
 #include "MCTSMMAB5x5S.h"
 
 #define DEPTH 4
 #define N_VISITS 2
 static int n_legal_moves(State state);
 static float calculate_score(Node node);
+
+typedef struct FreeQueue *FreeQueue;
+struct FreeQueue {
+    Node node
+}
 
 /* Given a state, parent, creates a new node */
 Node create_node(State state, Node parent) {
@@ -31,6 +36,17 @@ Node create_node(State state, Node parent) {
     new->visits = 0;
 
     return new;
+}
+
+/* Given a node, frees it */
+void free_node(Node node) {
+    for (int i = 0; i < node->n_possible_children; i++) {
+        free(node->children[i]);
+    }
+    free(node->children);
+    free(node);
+
+    return;
 }
 
 /* Given a node, SELECTS the child with the highest UCT score until we reach
@@ -102,20 +118,6 @@ Returns the evaluation of the position */
 int simulate(Node node) {
     // Creates a new state to be used in simulation
     State simulate_state = create_state(node->state->board, node->state->player, node->state->last_move);
-    
-    // Performs minimax to check for forced losses
-    /*int evaluation = minimax(simulate_state, DEPTH, INT_MIN, INT_MAX, simulate_state->player);
-    if (evaluation == node->state->player) {
-        node->parent->value = INT_MIN;
-        node->value = INT_MAX;
-        free_state(simulate_state);
-        return evaluation;
-    } else if (evaluation == -node->state->player) {
-        node->value = INT_MIN;
-        free_state(simulate_state);
-        return evaluation;
-        // NOTE: If all child are forced losses, then this node is a forced win.
-    }*/
 
     while (!is_terminal(simulate_state)) {
         rollout_policy(simulate_state);
@@ -218,6 +220,31 @@ Node get_most_visited_child(Node node) {
 
     return node->children[most_child];
 }
+
+/* Frees a node and all its children except for a given child node. This is used
+to free up the memory once we move past a certain game state and onto the next turn. */
+void free_all_other_nodes(Node node, Node child) {
+    // Queue linked list 
+    
+    for (int i = 0; i < node->n_children; i++) {
+        if (node->children[i] == child) {
+            // Do not touch this child
+        }
+    }
+
+    for (int i = 0; i < node->n_children; i++) {
+        if (node->children[i] != child) {
+            free_node(node->children[i]);
+        }
+    }
+
+    free_node(node);
+
+    child->parent = NULL;
+
+    return;
+}
+
 
 // ==========HELPER FUNCTIONS==========
 

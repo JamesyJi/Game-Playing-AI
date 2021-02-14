@@ -1,7 +1,7 @@
 #ifndef _MCTSMMAB5X5SBOARD_GUARD
 #define _MCTSMMAB5X5SBOARD_GUARD
 
-#include "MCTSMMAB5x5SStructs.h"
+#include "Structs.h"
 
 #define EMPTY 0
 #define PLAYER1 1
