@@ -12,7 +12,7 @@ The intuition behind this is that MCTS converges to a minimax as the number of s
 
 However, there are some pitfalls to this strategy. What if in a particular position, 9/10 moves loses you the game but the one move will lead you to a winning position? This is actually a good position because you have control over your move and you can choose to make that winning move. However, via random simulation, you will find that this position has a 90% losing chance and thus, the algorithm will never see this state as good. In order to deal with things like this, we will implement a minimax lookahead.
 
-## A Quick Rundown on Minimax Alpha Beta pruning##
+## A Quick Rundown on Minimax Alpha Beta pruning ##
 Minimax is basically a brute force search method where each player aims to make the best possible move for them. Essentially, it does a brute search with optimal play and can essentially determine, with perfect knowledge, all game states and their possible outcomes. However, it is exponentially expensive which is why we will only use it to augment our MCTS rather than as the main driving algorithm.
 
 Furthermore, we will implement alpha beta pruning to improve efficiency. Again, there are much better explanations online but the gist of alpha beta pruning is that you save a lot of time by ignoring nodes which you have already determined to be worse off than your current best option.
