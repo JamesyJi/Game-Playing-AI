@@ -1,3 +1,5 @@
+UPDATE: This was a fun project I worked on in my spare time. I'm currently researching it under Professor Michael Thielscher at UNSW. Here is the new repository with much faster C++ implementation https://github.com/JamesyJi/Thesis-MCTS-GGP
+
 # Game-Playing AI
 In this repository, I have combined Monte Carlos Tree Search + Minimax Alpha Beta pruning to play different board games. Currently there exists 3x3 TicTacToe and 5x5 (4-in-a-row) games, however, the algorithms can be applied to any perfect information 2 player games (and really, anything which requires state evaluations).
 
